@@ -1,19 +1,247 @@
 ---
 import '../styles/global.css';
+
 const categories = [
-  ['University','amount',420,'sky'],['Home & essentials','amount',180,'lavender'],['Fun money','percent',8,'peach'],['Subscriptions','amount',34,'mint']
+  { name: 'University', mode: 'amount', value: 420 },
+  { name: 'Home & essentials', mode: 'amount', value: 180 },
+  { name: 'Fun money', mode: 'percent', value: 8 },
+  { name: 'Subscriptions', mode: 'amount', value: 34 },
 ];
+
+const initialPlans = ['Paycheck 15th', 'Paycheck 30th'];
 ---
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><title>No Waste No Pain</title></head><body><main class="shell">
-<header class="topbar"><a class="brand" href="/"><span class="mark">NW<br/>NP</span><span>No Waste<br/><i>No Pain</i></span></a></header>
-<section class="intro"><h1>Make room<br/><em>for what matters.</em></h1></section>
-<section class="period-card glass"><div class="section-label"><span>01</span><span>Set your periods</span></div><div class="period-grid"><label>Period<select id="period"><option>Monthly</option><option selected>Bi-weekly</option><option>Weekly</option></select></label><label>First paycheck<select id="start"><option>15th</option><option>1st</option></select></label><label>Second paycheck<select id="end"><option>30th</option><option>15th</option></select></label></div><div class="income-row"><label>Total take-home income<input id="income" type="number" value="1800" min="0"/></label><span class="currency">USD</span></div></section>
-<section class="budget-section"><div class="section-label"><span>02</span><span>Give every dollar a place</span><button id="add" class="add-button">+ Add a line</button></div><div class="period-tabs" role="tablist" aria-label="Budget period"><button class="period-tab" data-period="Monthly" role="tab">Monthly</button><button class="period-tab active" data-period="Bi-weekly" role="tab">Bi-weekly</button><button class="period-tab" data-period="Weekly" role="tab">Weekly</button></div><p class="period-hint">Editing your <strong id="active-period">Bi-weekly</strong> plan</p><div id="categories" class="category-list">{categories.map(([name,mode,value,tint])=><div class={`category-row ${tint}`} data-mode={mode} data-monthly={value} data-bi-weekly={value} data-weekly={value}><span class="dot"></span><input class="category-name" value={name} aria-label="Category name"/><div class="value-wrap"><span class="equivalent"></span><input class="category-value" type="number" value={value} min="0" aria-label="Budget value"/><button class="mode-toggle" aria-label="Switch to percentage mode">{mode==='amount'?'$':'%'}</button></div><button class="remove" aria-label="Remove category">×</button></div>)}</div></section>
-<section class="summary glass"><div><p class="kicker">Still to place</p><strong id="leftover">$1,038</strong><p id="summary-copy">58% of your income is still flexible.</p></div><div class="ring"><span id="used">42%</span><small>planned</small></div></section><button class="copy-button" id="copy">Copy as markdown <span>↗</span></button><p class="footnote" id="status">Saved locally in this browser.</p>
-</main><script>
-const income=document.querySelector('#income'),period=document.querySelector('#period'),list=document.querySelector('#categories'),left=document.querySelector('#leftover'),used=document.querySelector('#used'),status=document.querySelector('#status'); const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n); let activePeriod=period.value;
-const periodKey=name=>name==='Bi-weekly'?'biWeekly':name.toLowerCase(); function calc(){const total=Number(income.value)||0;let planned=0;list.querySelectorAll('.category-row').forEach(r=>{const v=Number(r.querySelector('.category-value').value)||0;const isPercent=r.dataset.mode==='percent';planned+=isPercent?total*v/100:v;r.querySelector('.equivalent').textContent=isPercent?money(total*v/100):''});const p=total?Math.round(planned/total*100):0;left.textContent=money(total-planned);used.textContent=p+'%';document.querySelector('#summary-copy').textContent=`${Math.max(0,100-p)}% of this period's income is still flexible.`;document.querySelector('.ring').style.setProperty('--progress',p+'%')} function savePeriod(){list.querySelectorAll('.category-row').forEach(r=>r.dataset[periodKey(activePeriod)]=r.querySelector('.category-value').value)} function loadPeriod(next){savePeriod();activePeriod=next;period.value=next;document.querySelector('#active-period').textContent=next;list.querySelectorAll('.category-row').forEach(r=>{r.querySelector('.category-value').value=r.dataset[periodKey(next)]||0});document.querySelectorAll('.period-tab').forEach(t=>t.classList.toggle('active',t.dataset.period===next));calc()} list.addEventListener('input',e=>{if(e.target.classList.contains('category-value')){const row=e.target.closest('.category-row');row.dataset[periodKey(activePeriod)]=e.target.value}calc()});income.addEventListener('input',calc);period.onchange=()=>loadPeriod(period.value);document.querySelectorAll('.period-tab').forEach(t=>t.onclick=()=>loadPeriod(t.dataset.period));
-list.addEventListener('click',e=>{if(e.target.classList.contains('remove')){e.target.closest('.category-row').remove();calc()}if(e.target.classList.contains('mode-toggle')){const r=e.target.closest('.category-row');r.dataset.mode=r.dataset.mode==='amount'?'percent':'amount';e.target.textContent=r.dataset.mode==='amount'?'$':'%';e.target.setAttribute('aria-label',`Switch to ${r.dataset.mode==='amount'?'percentage':'amount'} mode`);calc()}});
-document.querySelector('#add').onclick=()=>{const r=document.createElement('div');r.className='category-row sky';r.dataset.mode='amount';r.dataset.monthly='0';r.dataset.biweekly='0';r.dataset.weekly='0';r.innerHTML='<span class="dot"></span><input class="category-name" value="New category" aria-label="Category name"/><div class="value-wrap"><span class="equivalent"></span><input class="category-value" type="number" value="0" min="0" aria-label="Budget value"/><button class="mode-toggle" aria-label="Switch to percentage mode">$</button></div><button class="remove" aria-label="Remove category">×</button>';list.append(r);calc()};
-document.querySelector('#copy').onclick=async()=>{let md=`# My No Waste No Pain plan\n\n**${document.querySelector('#period').value}** · ${document.querySelector('#start').value} → ${document.querySelector('#end').value}\n\nIncome: **${money(Number(income.value)||0)}**\n\n`;list.querySelectorAll('.category-row').forEach(r=>md+=`- ${r.querySelector('.category-name').value}: ${r.dataset.mode==='percent'?r.querySelector('.category-value').value+'%':money(Number(r.querySelector('.category-value').value)||0)}\n`);md+=`\nLeftover: **${left.textContent}**`;await navigator.clipboard.writeText(md);status.textContent='Copied. Ready for your notes app.';setTimeout(()=>status.textContent='Your plan stays in this browser.',2200)};calc();
-</script></body></html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#0a1118" />
+    <title>No Waste No Pain</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="No Waste No Pain home">
+          <span class="mark" aria-hidden="true">NW<br />NP</span>
+          <span>No Waste<br /><i>No Pain</i></span>
+        </a>
+      </header>
+
+      <section class="intro">
+        <h1>Make room<br /><em>for what matters.</em></h1>
+      </section>
+
+      <section class="period-card glass" aria-labelledby="schedule-heading">
+        <div class="section-label">
+          <span>01</span>
+          <span id="schedule-heading">Set your pay schedule</span>
+        </div>
+        <div class="period-grid">
+          <label>
+            Pay cycle
+            <select id="period">
+              <option>Monthly</option>
+              <option selected>Bi-weekly</option>
+              <option>Weekly</option>
+            </select>
+          </label>
+          <label>
+            First paycheck
+            <select id="start"><option>15th</option><option>1st</option></select>
+          </label>
+          <label>
+            Second paycheck
+            <select id="end"><option>30th</option><option>15th</option></select>
+          </label>
+        </div>
+        <div class="income-row">
+          <label>
+            Income per paycheck
+            <input id="income" type="number" value="1800" min="0" inputmode="decimal" />
+          </label>
+          <span class="currency">USD</span>
+        </div>
+      </section>
+
+      <div class="plans-heading">
+        <div>
+          <span>02</span>
+          <h2>Budget each paycheck</h2>
+        </div>
+        <button class="add-plan" id="add-plan" type="button">Add paycheck</button>
+      </div>
+
+      <div id="plans" class="plans">
+        {initialPlans.map((title, planIndex) => (
+          <article class="budget-plan glass">
+            <header class="plan-header">
+              <label>
+                Plan name
+                <input class="plan-name" value={title} aria-label="Budget plan name" />
+              </label>
+              <button class="remove-plan" type="button" aria-label={`Remove ${title}`} disabled={planIndex === 0}>Remove</button>
+            </header>
+            <div class="column-labels" aria-hidden="true"><span>Category</span><span>Budget</span></div>
+            <div class="category-list">
+              {categories.map((category) => (
+                <div class="category-row" data-mode={category.mode}>
+                  <button class="category-toggle active" type="button" aria-pressed="true" aria-label={`Disable ${category.name}`}></button>
+                  <input class="category-name" value={category.name} aria-label="Category name" />
+                  <div class="value-control">
+                    <div class="value-main">
+                      <input class="category-value" type="number" value={category.value} min="0" inputmode="decimal" aria-label={`${category.name} budget`} />
+                      <div class="mode-switch" aria-label="Budget type">
+                        <button class={`unit-btn ${category.mode === 'amount' ? 'active' : ''}`} data-mode="amount" type="button" aria-label="Use money amount">$</button>
+                        <button class={`unit-btn ${category.mode === 'percent' ? 'active' : ''}`} data-mode="percent" type="button" aria-label="Use percentage">%</button>
+                      </div>
+                    </div>
+                    <span class="equivalent" aria-live="polite"></span>
+                  </div>
+                  <button class="remove-category" type="button" aria-label={`Remove ${category.name}`}>×</button>
+                </div>
+              ))}
+            </div>
+            <button class="add-category" type="button">Add category</button>
+            <footer class="plan-summary">
+              <div><span>Left this paycheck</span><strong class="leftover">$0</strong></div>
+              <div class="planned"><span class="planned-percent">0% planned</span><div class="progress-track"><span></span></div></div>
+            </footer>
+          </article>
+        ))}
+      </div>
+
+      <button class="copy-button" id="copy" type="button">Copy all plans as markdown</button>
+      <p class="footnote" id="status">Nothing leaves this browser.</p>
+    </main>
+
+    <template id="plan-template">
+      <article class="budget-plan glass">
+        <header class="plan-header">
+          <label>Plan name<input class="plan-name" value="New paycheck" aria-label="Budget plan name" /></label>
+          <button class="remove-plan" type="button" aria-label="Remove plan">Remove</button>
+        </header>
+        <div class="column-labels" aria-hidden="true"><span>Category</span><span>Budget</span></div>
+        <div class="category-list"></div>
+        <button class="add-category" type="button">Add category</button>
+        <footer class="plan-summary">
+          <div><span>Left this paycheck</span><strong class="leftover">$0</strong></div>
+          <div class="planned"><span class="planned-percent">0% planned</span><div class="progress-track"><span></span></div></div>
+        </footer>
+      </article>
+    </template>
+
+    <script is:inline>
+      const plans = document.querySelector('#plans');
+      const income = document.querySelector('#income');
+      const status = document.querySelector('#status');
+      const money = (value) => new Intl.NumberFormat('en-US', {
+        style: 'currency', currency: 'USD', maximumFractionDigits: 0,
+      }).format(value);
+
+      function categoryMarkup(name = 'New category', value = 0, mode = 'amount') {
+        return `<div class="category-row" data-mode="${mode}">
+          <button class="category-toggle active" type="button" aria-pressed="true" aria-label="Disable ${name}"></button>
+          <input class="category-name" value="${name}" aria-label="Category name">
+          <div class="value-control">
+            <div class="value-main">
+              <input class="category-value" type="number" value="${value}" min="0" inputmode="decimal" aria-label="${name} budget">
+              <div class="mode-switch" aria-label="Budget type">
+                <button class="unit-btn ${mode === 'amount' ? 'active' : ''}" data-mode="amount" type="button" aria-label="Use money amount">$</button>
+                <button class="unit-btn ${mode === 'percent' ? 'active' : ''}" data-mode="percent" type="button" aria-label="Use percentage">%</button>
+              </div>
+            </div>
+            <span class="equivalent" aria-live="polite"></span>
+          </div>
+          <button class="remove-category" type="button" aria-label="Remove ${name}">×</button>
+        </div>`;
+      }
+
+      function calculatePlan(plan) {
+        const total = Number(income.value) || 0;
+        let allocated = 0;
+        plan.querySelectorAll('.category-row').forEach((row) => {
+          const value = Number(row.querySelector('.category-value').value) || 0;
+          const enabled = row.querySelector('.category-toggle').getAttribute('aria-pressed') === 'true';
+          const amount = row.dataset.mode === 'percent' ? total * value / 100 : value;
+          row.querySelector('.equivalent').textContent = row.dataset.mode === 'percent' ? `${money(amount)} of income` : '';
+          if (enabled) allocated += amount;
+        });
+        const percent = total ? Math.round(allocated / total * 100) : 0;
+        plan.querySelector('.leftover').textContent = money(total - allocated);
+        plan.querySelector('.planned-percent').textContent = `${percent}% planned`;
+        plan.querySelector('.progress-track span').style.transform = `scaleX(${Math.min(percent, 100) / 100})`;
+      }
+
+      function calculateAll() {
+        plans.querySelectorAll('.budget-plan').forEach(calculatePlan);
+      }
+
+      plans.addEventListener('click', (event) => {
+        const target = event.target;
+        const plan = target.closest('.budget-plan');
+        if (!plan) return;
+
+        if (target.classList.contains('category-toggle')) {
+          const enabled = target.getAttribute('aria-pressed') !== 'true';
+          target.setAttribute('aria-pressed', String(enabled));
+          target.classList.toggle('active', enabled);
+          target.closest('.category-row').classList.toggle('disabled', !enabled);
+          const name = target.closest('.category-row').querySelector('.category-name').value;
+          target.setAttribute('aria-label', `${enabled ? 'Disable' : 'Enable'} ${name}`);
+          calculatePlan(plan);
+        }
+        if (target.classList.contains('unit-btn')) {
+          const row = target.closest('.category-row');
+          row.dataset.mode = target.dataset.mode;
+          row.querySelectorAll('.unit-btn').forEach((button) => button.classList.toggle('active', button === target));
+          calculatePlan(plan);
+        }
+        if (target.classList.contains('remove-category')) {
+          target.closest('.category-row').remove();
+          calculatePlan(plan);
+        }
+        if (target.classList.contains('add-category')) {
+          plan.querySelector('.category-list').insertAdjacentHTML('beforeend', categoryMarkup());
+          calculatePlan(plan);
+        }
+        if (target.classList.contains('remove-plan')) {
+          plan.remove();
+        }
+      });
+
+      plans.addEventListener('input', (event) => {
+        const plan = event.target.closest('.budget-plan');
+        if (plan) calculatePlan(plan);
+      });
+      income.addEventListener('input', calculateAll);
+
+      document.querySelector('#add-plan').addEventListener('click', () => {
+        const fragment = document.querySelector('#plan-template').content.cloneNode(true);
+        const plan = fragment.querySelector('.budget-plan');
+        const number = plans.querySelectorAll('.budget-plan').length + 1;
+        plan.querySelector('.plan-name').value = `Paycheck ${number}`;
+        plan.querySelector('.category-list').innerHTML = categoryMarkup();
+        plans.append(fragment);
+        calculatePlan(plans.lastElementChild);
+      });
+
+      document.querySelector('#copy').addEventListener('click', async () => {
+        let markdown = `# No Waste No Pain\n\nIncome per paycheck: **${money(Number(income.value) || 0)}**\n`;
+        plans.querySelectorAll('.budget-plan').forEach((plan) => {
+          markdown += `\n## ${plan.querySelector('.plan-name').value}\n`;
+          plan.querySelectorAll('.category-row').forEach((row) => {
+            if (row.querySelector('.category-toggle').getAttribute('aria-pressed') !== 'true') return;
+            const value = row.querySelector('.category-value').value;
+            markdown += `- ${row.querySelector('.category-name').value}: ${row.dataset.mode === 'percent' ? `${value}%` : money(Number(value) || 0)}\n`;
+          });
+          markdown += `\nLeftover: **${plan.querySelector('.leftover').textContent}**\n`;
+        });
+        await navigator.clipboard.writeText(markdown);
+        status.textContent = 'Copied all plans.';
+        setTimeout(() => status.textContent = 'Nothing leaves this browser.', 2200);
+      });
+
+      calculateAll();
+    </script>
+  </body>
+</html>
