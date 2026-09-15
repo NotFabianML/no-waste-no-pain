@@ -1,0 +1,31 @@
+<section class="period-card glass" aria-labelledby="schedule-heading">
+  <div class="section-label">
+    <span>01</span>
+    <span id="schedule-heading">Set your pay schedule</span>
+  </div>
+  <div class="period-grid">
+    <label>
+      Pay cycle
+      <select id="period">
+        <option>Monthly</option>
+        <option selected>Bi-weekly</option>
+        <option>Weekly</option>
+      </select>
+    </label>
+    <label>
+      First paycheck
+      <select id="start"><option>15th</option><option>1st</option></select>
+    </label>
+    <label>
+      Second paycheck
+      <select id="end"><option>30th</option><option>15th</option></select>
+    </label>
+  </div>
+  <div class="income-row">
+    <label>
+      Income per paycheck
+      <input id="income" type="number" value="1800" min="0" inputmode="decimal" />
+    </label>
+    <span class="currency">USD</span>
+  </div>
+</section>

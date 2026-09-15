@@ -1,43 +1,57 @@
-# Astro Starter Kit: Minimal
+# No Waste No Pain
+
+A minimal, mobile-first paycheck budget planner built with Astro and TypeScript. It lets you give each paycheck its own set of categories, enter budgets as money or percentages, and copy the result as a Markdown table for a notes app.
+
+## Features
+
+- Independent budgets for each paycheck
+- Fixed-amount and percentage-based categories
+- Live dollar and percentage equivalents
+- Per-paycheck leftover and planned-total indicators
+- Add, disable, or remove categories and paycheck plans
+- Copy every plan as clean Markdown
+- Responsive dark glassmorphism interface
+- Fully local: budget data never leaves the browser
+
+## Run locally
+
+Requirements: Node.js 22.12 or newer and pnpm.
 
 ```sh
-pnpm create astro@latest -- --template minimal
+pnpm install
+pnpm dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Open [http://localhost:4321](http://localhost:4321).
 
-## 🚀 Project Structure
+For the repository's background development workflow:
 
-Inside of your Astro project, you'll see the following folders and files:
+```sh
+pnpm astro dev --background
+pnpm astro dev status
+pnpm astro dev logs
+pnpm astro dev stop
+```
+
+## Commands
+
+| Command | Purpose |
+| :-- | :-- |
+| `pnpm dev` | Start the development server |
+| `pnpm build` | Create a production build in `dist/` |
+| `pnpm preview` | Preview the production build |
+
+## Project structure
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/
+├── components/       Astro UI components
+├── data/budget.ts    Default plans and shared types
+├── pages/index.astro Page composition
+├── scripts/budget.ts Client-side budget behavior
+└── styles/global.css Design system and responsive styles
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Git flow
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Development happens on `dev`. Stable work is merged into `main`.

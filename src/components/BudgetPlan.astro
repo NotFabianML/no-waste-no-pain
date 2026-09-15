@@ -1,0 +1,31 @@
+---
+import BudgetCategory from './BudgetCategory.astro';
+import type { BudgetCategory as Category } from '../data/budget';
+
+interface Props {
+  title: string;
+  categories?: Category[];
+  removable?: boolean;
+}
+
+const { title, categories = [], removable = true } = Astro.props;
+---
+
+<article class="budget-plan glass">
+  <header class="plan-header">
+    <label>
+      Plan name
+      <input class="plan-name" value={title} aria-label="Budget plan name" />
+    </label>
+    <button class="remove-plan" type="button" aria-label={`Remove ${title}`} disabled={!removable}>Remove</button>
+  </header>
+  <div class="column-labels" aria-hidden="true"><span>Category</span><span>Budget</span></div>
+  <div class="category-list">
+    {categories.map((category) => <BudgetCategory category={category} />)}
+  </div>
+  <button class="add-category" type="button">Add category</button>
+  <footer class="plan-summary">
+    <div><span>Left this paycheck</span><strong class="leftover">$0</strong></div>
+    <div class="planned"><span class="planned-percent">0% planned</span><div class="progress-track"><span></span></div></div>
+  </footer>
+</article>

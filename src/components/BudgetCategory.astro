@@ -1,0 +1,25 @@
+---
+import type { BudgetCategory } from '../data/budget';
+
+interface Props {
+  category: BudgetCategory;
+}
+
+const { category } = Astro.props;
+---
+
+<div class="category-row" data-mode={category.mode}>
+  <button class="category-toggle active" type="button" aria-pressed="true" aria-label={`Disable ${category.name}`}></button>
+  <input class="category-name" value={category.name} aria-label="Category name" />
+  <div class="value-control">
+    <div class="value-main">
+      <input class="category-value" type="number" value={category.value} min="0" inputmode="decimal" aria-label={`${category.name} budget`} />
+      <div class="mode-switch" aria-label="Budget type">
+        <button class:list={['unit-btn', { active: category.mode === 'amount' }]} data-mode="amount" type="button" aria-label="Use money amount">$</button>
+        <button class:list={['unit-btn', { active: category.mode === 'percent' }]} data-mode="percent" type="button" aria-label="Use percentage">%</button>
+      </div>
+    </div>
+    <span class="equivalent" aria-live="polite"></span>
+  </div>
+  <button class="remove-category" type="button" aria-label={`Remove ${category.name}`}>×</button>
+</div>
