@@ -137,6 +137,10 @@ const initialPlans = ['Paycheck 15th', 'Paycheck 30th'];
       const money = (value) => new Intl.NumberFormat('en-US', {
         style: 'currency', currency: 'USD', maximumFractionDigits: 0,
       }).format(value);
+      const percent = (value) => `${new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 1,
+      }).format(value)}%`;
+      const tableCell = (value) => String(value).replaceAll('|', '\\|');
 
       function categoryMarkup(name = 'New category', value = 0, mode = 'amount') {
         return `<div class="category-row" data-mode="${mode}">
@@ -163,13 +167,16 @@ const initialPlans = ['Paycheck 15th', 'Paycheck 30th'];
           const value = Number(row.querySelector('.category-value').value) || 0;
           const enabled = row.querySelector('.category-toggle').getAttribute('aria-pressed') === 'true';
           const amount = row.dataset.mode === 'percent' ? total * value / 100 : value;
-          row.querySelector('.equivalent').textContent = row.dataset.mode === 'percent' ? `${money(amount)} of income` : '';
+          const share = total ? amount / total * 100 : 0;
+          row.querySelector('.equivalent').textContent = row.dataset.mode === 'percent'
+            ? `${money(amount)} of income`
+            : `${percent(share)} of income`;
           if (enabled) allocated += amount;
         });
-        const percent = total ? Math.round(allocated / total * 100) : 0;
+        const plannedPercent = total ? Math.round(allocated / total * 100) : 0;
         plan.querySelector('.leftover').textContent = money(total - allocated);
-        plan.querySelector('.planned-percent').textContent = `${percent}% planned`;
-        plan.querySelector('.progress-track span').style.transform = `scaleX(${Math.min(percent, 100) / 100})`;
+        plan.querySelector('.planned-percent').textContent = `${plannedPercent}% planned`;
+        plan.querySelector('.progress-track span').style.transform = `scaleX(${Math.min(plannedPercent, 100) / 100})`;
       }
 
       function calculateAll() {
@@ -229,10 +236,16 @@ const initialPlans = ['Paycheck 15th', 'Paycheck 30th'];
         let markdown = `# No Waste No Pain\n\nIncome per paycheck: **${money(Number(income.value) || 0)}**\n`;
         plans.querySelectorAll('.budget-plan').forEach((plan) => {
           markdown += `\n## ${plan.querySelector('.plan-name').value}\n`;
+          markdown += `\n| Category | Budget | Equivalent |\n| :-- | --: | --: |\n`;
           plan.querySelectorAll('.category-row').forEach((row) => {
             if (row.querySelector('.category-toggle').getAttribute('aria-pressed') !== 'true') return;
-            const value = row.querySelector('.category-value').value;
-            markdown += `- ${row.querySelector('.category-name').value}: ${row.dataset.mode === 'percent' ? `${value}%` : money(Number(value) || 0)}\n`;
+            const value = Number(row.querySelector('.category-value').value) || 0;
+            const total = Number(income.value) || 0;
+            const amount = row.dataset.mode === 'percent' ? total * value / 100 : value;
+            const share = total ? amount / total * 100 : 0;
+            const budget = row.dataset.mode === 'percent' ? percent(value) : money(value);
+            const equivalent = row.dataset.mode === 'percent' ? money(amount) : percent(share);
+            markdown += `| ${tableCell(row.querySelector('.category-name').value)} | ${budget} | ${equivalent} |\n`;
           });
           markdown += `\nLeftover: **${plan.querySelector('.leftover').textContent}**\n`;
         });
