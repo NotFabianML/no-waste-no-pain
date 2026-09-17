@@ -46,7 +46,7 @@ button:disabled { cursor: default; }
 .brand { display: flex; align-items: center; gap: 10px; color: #e7f5ff; text-decoration: none; font-size: 13px; font-weight: 700; line-height: .88; letter-spacing: -.02em; }
 .brand i { color: var(--ice); font-style: normal; font-weight: 400; }
 .mark { display: grid; width: 38px; height: 38px; place-content: center; border: 1px solid rgb(164 216 255 / 50%); border-radius: 10px; background: rgb(164 216 255 / 7%); color: var(--ice); font: 500 10px/1 'DM Mono', monospace; letter-spacing: -.12em; text-align: center; }
-.intro { padding: 88px 0 46px; }
+.intro { padding: 56px 0 46px; }
 h1 { max-width: 680px; margin: 0; font-size: clamp(42px, 9vw, 74px); font-weight: 600; line-height: .94; letter-spacing: -.04em; }
 h1 em { color: var(--ice); font-style: normal; }
 
@@ -105,16 +105,22 @@ button:focus-visible { outline: 3px solid rgb(164 216 255 / 48%); outline-offset
 .planned { display: grid; width: min(42%, 220px); gap: 7px; text-align: right; }
 .progress-track { height: 5px; overflow: hidden; border-radius: 999px; background: rgb(164 216 255 / 12%); }
 .progress-track span { display: block; width: 100%; height: 100%; border-radius: inherit; background: var(--ice); transform: scaleX(0); transform-origin: left; transition: transform 180ms ease-out; }
-.copy-button { width: 100%; min-height: 50px; margin-top: 22px; border: 0; border-radius: 12px; background: var(--ice); color: var(--ink); font-size: 15px; font-weight: 700; }
+.copy-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+.copy-button { width: 100%; min-height: 50px; border: 0; border-radius: 12px; background: var(--ice); color: var(--ink); font-size: 15px; font-weight: 700; }
+#copy-plain { box-shadow: 0 8px 24px rgb(164 216 255 / 14%); }
+#copy-markdown { border: 1px solid var(--line); background: transparent; color: var(--ice); }
+#copy-plain:hover { background: #c3e6ff; }
+#copy-markdown:hover { border-color: rgb(164 216 255 / 48%); background: rgb(164 216 255 / 9%); }
 .footnote { margin: 14px 0 0; color: #8da5b2; font: 500 10px 'DM Mono', monospace; text-align: center; }
 
 @media (min-width: 600px) {
   .shell { padding-top: 40px; }
-  .intro { padding-top: 108px; }
+  .intro { padding-top: 64px; }
   .period-grid { grid-template-columns: 1.2fr 1fr 1fr; }
 }
 
 @media (max-width: 520px) {
+  .copy-actions { grid-template-columns: 1fr; }
   .budget-plan { padding: 14px 12px; }
   .category-row { grid-template-columns: 26px minmax(0, 1fr) 128px 28px; gap: 5px; padding-inline: 5px; }
   .value-control { width: 128px; min-width: 128px; }

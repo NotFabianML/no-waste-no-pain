@@ -11,6 +11,7 @@ import '../styles/global.css';
     <meta name="viewport" content="width=device-width" />
     <meta name="theme-color" content="#0a1118" />
     <meta name="description" content="A minimal paycheck budget planner that keeps your data in the browser." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>No Waste No Pain</title>
   </head>
   <body>
@@ -42,7 +43,10 @@ import '../styles/global.css';
         ))}
       </div>
 
-      <button class="copy-button" id="copy" type="button">Copy all plans as markdown</button>
+      <div class="copy-actions" aria-label="Copy budget plans">
+        <button class="copy-button" id="copy-plain" type="button">Copy all plans as plain text</button>
+        <button class="copy-button" id="copy-markdown" type="button">Copy all plans as Markdown</button>
+      </div>
       <p class="footnote" id="status">Nothing leaves this browser.</p>
     </main>
 

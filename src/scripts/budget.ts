@@ -116,13 +116,17 @@ export function initBudgetPlanner() {
     calculatePlan(plan);
   });
 
-  required<HTMLButtonElement>(document, '#copy').addEventListener('click', async () => {
+  function buildExport(format: 'plain' | 'markdown') {
     const total = Number(income.value) || 0;
-    let markdown = `# No Waste No Pain\n\nIncome per paycheck: **${money(total)}**\n`;
+    let output = format === 'markdown'
+      ? `# No Waste No Pain\n\nIncome per paycheck: **${money(total)}**\n`
+      : `NO WASTE NO PAIN\n\nIncome per paycheck: ${money(total)}\n`;
 
     plans.querySelectorAll('.budget-plan').forEach((plan) => {
-      markdown += `\n## ${required<HTMLInputElement>(plan, '.plan-name').value}\n`;
-      markdown += '\n| Category | Budget | Equivalent |\n| :-- | --: | --: |\n';
+      const title = required<HTMLInputElement>(plan, '.plan-name').value;
+      output += format === 'markdown'
+        ? `\n## ${title}\n\n| Category | Budget | Equivalent |\n| :-- | --: | --: |\n`
+        : `\n${title.toUpperCase()}\n${'─'.repeat(title.length)}\n`;
       plan.querySelectorAll<HTMLElement>('.category-row').forEach((row) => {
         if (required<HTMLButtonElement>(row, '.category-toggle').getAttribute('aria-pressed') !== 'true') return;
         const value = Number(required<HTMLInputElement>(row, '.category-value').value) || 0;
@@ -131,15 +135,26 @@ export function initBudgetPlanner() {
         const budget = row.dataset.mode === 'percent' ? percent(value) : money(value);
         const equivalent = row.dataset.mode === 'percent' ? money(amount) : percent(share);
         const name = required<HTMLInputElement>(row, '.category-name').value;
-        markdown += `| ${tableCell(name)} | ${budget} | ${equivalent} |\n`;
+        output += format === 'markdown'
+          ? `| ${tableCell(name)} | ${budget} | ${equivalent} |\n`
+          : `• ${name}: ${budget} (${equivalent})\n`;
       });
-      markdown += `\nLeftover: **${required<HTMLElement>(plan, '.leftover').textContent}**\n`;
+      const leftover = required<HTMLElement>(plan, '.leftover').textContent;
+      output += format === 'markdown'
+        ? `\nLeftover: **${leftover}**\n`
+        : `\nLeftover: ${leftover}\n`;
     });
+    return output;
+  }
 
-    await navigator.clipboard.writeText(markdown);
-    status.textContent = 'Copied all plans.';
+  async function copyPlans(format: 'plain' | 'markdown') {
+    await navigator.clipboard.writeText(buildExport(format));
+    status.textContent = `Copied all plans as ${format === 'plain' ? 'plain text' : 'Markdown'}.`;
     setTimeout(() => status.textContent = 'Nothing leaves this browser.', 2200);
-  });
+  }
+
+  required<HTMLButtonElement>(document, '#copy-plain').addEventListener('click', () => copyPlans('plain'));
+  required<HTMLButtonElement>(document, '#copy-markdown').addEventListener('click', () => copyPlans('markdown'));
 
   calculateAll();
 }

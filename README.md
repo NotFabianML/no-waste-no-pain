@@ -9,7 +9,7 @@ A minimal, mobile-first paycheck budget planner built with Astro and TypeScript.
 - Live dollar and percentage equivalents
 - Per-paycheck leftover and planned-total indicators
 - Add, disable, or remove categories and paycheck plans
-- Copy every plan as clean Markdown
+- Copy every plan as plain text or clean Markdown
 - Responsive dark glassmorphism interface
 - Fully local: budget data never leaves the browser
 
